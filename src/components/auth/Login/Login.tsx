@@ -1,29 +1,30 @@
-import React, {useState} from 'react'
-import {signInWithPopup, GoogleAuthProvider, User} from 'firebase/auth'
-import { auth } from '../../..';
+import React, { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "../../../app/store";
+import { loginUser } from "../../../features/auth/authSlice";
+import { auth } from "../../..";
+import { GoogleAuthProvider } from "firebase/auth";
+
 
 export const Login = () => {
+    const dispatch = useDispatch();
+    const user = useSelector((state: RootState) => state.authentication.user)
+    const error = useSelector((state: RootState) => state.authentication.error)
     const provider = new GoogleAuthProvider();
-    const [user, setUser] = useState<User>();
-    const [error, setError] = useState<any>();
-    const login = () => {signInWithPopup(auth, provider)
-    .then((result) => {
-        const credential = GoogleAuthProvider.credentialFromResult(result);
-        const token = credential?.accessToken;
-        const user = result.user;
-        setUser(user)
-    }).catch((err) => {
-        const errorCode = err.code;
-        const errorMessage = err.message;
-        const email = err.email;
-        const credential = GoogleAuthProvider.credentialFromError(err);
-        setError({code: errorCode, message: errorMessage, email: email, credential: credential});
-    })};
-    if (user) {
-        return <div>{user.displayName}</div>
-    }
-    if (error) {
-        return <div>{error.message}</div>
-    }
-    return <button onClick={login}>Login</button>
-}
+
+    useEffect(() => {
+        console.log(user)
+        console.log(error)
+    }, [user, error])
+  if (user) {
+    return (<>
+    <div>{user.displayName}</div>
+    {/* <button onClick={() => dispatch(logout())}>Logout</button> */}
+    </>
+    );
+  }
+  if (error) {
+    return <div>{error.message}</div>;
+  }
+  return <button onClick={() => dispatch(loginUser())}>Login</button>;
+};
